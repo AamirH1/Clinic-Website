@@ -1,173 +1,115 @@
-# Harborlight Dental — Website
+<div align="center">
 
-A premium, animated dental clinic website built with Next.js 16 (App Router), React 19,
-TypeScript, Tailwind CSS and Framer Motion. Ready to deploy on Vercel.
+# Harborlight Dental
 
-## Stack
+**A dental clinic website template where content lives in one file and appointments are booked through a chat assistant.**
 
-- **Next.js 16** (App Router, Turbopack build)
-- **React 19** / **TypeScript**
-- **Tailwind CSS** for styling
-- **Framer Motion** for scroll/hover/entrance animation
-- No external CMS or paid API required to run — content lives in [`lib/data.ts`](lib/data.ts)
+![TypeScript](https://img.shields.io/badge/language-TypeScript-3178C6)
+![Next.js](https://img.shields.io/badge/framework-Next.js_16-000000)
+![React](https://img.shields.io/badge/UI-React_19-149ECA)
+![Tailwind CSS](https://img.shields.io/badge/styling-Tailwind_CSS_3-38BDF8)
+![Storage](https://img.shields.io/badge/storage-JSON_file-lightgrey)
+![License](https://img.shields.io/badge/license-not_yet_set-red)
 
-## Project structure
+</div>
 
-```
-app/
-  layout.tsx          Root layout, fonts, global <head> metadata, mounts <ChatWidget/>
-  page.tsx             Homepage — composes all sections in order
-  globals.css          Tailwind entry + reduced-motion handling
-  sitemap.ts, robots.ts        SEO routes
-  api/booking/route.ts         Appointment request endpoint (validates + persists)
-  admin/bookings/page.tsx      Token-gated view of submitted appointment requests
-  privacy/, terms/, accessibility/   Legal pages (template content — see below)
-components/
-  Navbar, Hero, TrustBar, Intro, Treatments, FeaturedTreatment,
-  SmileGallery, WhyChooseUs, Technology, PatientJourney, Testimonials,
-  Team, Contact, ChatWidget, FinalCTA, Footer, icons.tsx
-  ui/                  Reusable primitives: MagneticButton, RevealText,
-                        Counter, ArtPanel, Photo, BeforeAfterSlider, DatePicker
-lib/
-  data.ts              All site copy, treatments, team, testimonials, FAQs, stats
-  stockPhotos.ts        Verified free-license Unsplash photos used as placeholders
-  bookingStore.ts       File-based storage for appointment requests (see caveats below)
-legacy/
-  harborlight-dental.html   The original single-file artifact prototype,
-                             kept for reference only — not part of the app.
+## Why one content file and a chat assistant?
+
+Most small clinic websites have two problems. The text, prices and opening hours are scattered across many page files, so every change means hunting through code. And the booking form is a wall of fields that visitors abandon, while the clinic still has to answer the same questions (hours, parking, emergencies) by phone.
+
+This template fixes both:
+
+- **One content file.** Clinic details, treatments, team, reviews and FAQs all live in `lib/data.ts`. Edit it and every section updates.
+- **Booking as a conversation.** There is no form. The chat widget asks for name, phone, email, treatment and date one step at a time, and checks each answer before moving on.
+- **Questions answered from the same file.** The chat matches a visitor's question to your FAQ entries, so answers stay consistent with the rest of the site.
+- **Checked twice.** Every booking is validated in the browser and again on the server.
+
+A tiny example of what you edit (from `lib/data.ts`):
+
+```ts
+export const faqs = [
+  {
+    question: "Do you treat dental emergencies?",
+    answer: "Yes - we offer same-day emergency appointments."
+  }
+];
 ```
 
-## Running locally
+## What this project does
+
+1. **Browse** - a visitor reads a single-page site: hero, treatments, technology, reviews, team and contact.
+2. **Ask** - they open the chat and type a question; the assistant replies from your FAQ list.
+3. **Book** - they choose "Book an appointment" and answer five short prompts, picking the date from a calendar.
+4. **Validate** - the site rejects bad names, phone numbers, emails and past dates before anything is saved.
+5. **Review** - staff open a token-protected admin page to see the requests.
+
+It is for clinic owners and developers who want a polished starting point they can rebrand and deploy on Vercel.
+
+## Features
+
+- **Single-page layout** - navigation, hero, trust statistics, treatments, featured treatment, smile gallery, technology, patient journey, reviews, team, contact and footer.
+- **Chat assistant** - answers FAQs by keyword matching and runs the booking flow; includes a clear-chat button.
+- **Custom date picker** - a calendar that blocks past dates, instead of the browser's default control.
+- **Before/after slider** - a draggable comparison slider (currently shown with abstract placeholder art).
+- **Motion** - scroll reveals, counters and a magnetic button; all motion is reduced when the visitor's system asks for it.
+- **Admin view** - `/admin/bookings` lists submitted requests, gated by a token.
+- **SEO basics** - page metadata, `sitemap.xml` and `robots.txt`.
+- **Legal pages** - privacy, terms and accessibility pages with template text.
+- **Optimised images** - photos load through the Next.js image pipeline.
+
+## Quick start
+
+Requires Node.js 20 or newer (tested on 24) and npm.
 
 ```bash
+git clone https://github.com/AamirH1/clinic_template.git && cd clinic_template
 npm install
-npm run dev
+echo "ADMIN_TOKEN=change-me" > .env.local   # enables the admin page
+npm run dev                                  # starts the dev server
 ```
 
-Visit http://localhost:3000.
+- Site: <http://localhost:3000>
+- Admin: <http://localhost:3000/admin/bookings?token=change-me>
+- There is no demo login and no seed data. Book once through the chat to see an entry in the admin page.
 
-## Deploying to Vercel
+## Tech stack
 
-1. Push this repository to GitHub/GitLab/Bitbucket.
-2. In Vercel, "Add New Project" → import the repo. Framework preset
-   "Next.js" is auto-detected — no config needed.
-3. Deploy. `app/api/booking/route.ts` runs as a serverless function automatically.
-4. Optionally set `ADMIN_TOKEN` (Project Settings → Environment Variables) to enable
-   `/admin/bookings` — see "Viewing booking requests" below.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 3 · Framer Motion · ESLint
 
-## How booking works (chat, not a form)
+Architecture: a mostly static Next.js app with one server route (`/api/booking`) that validates requests and saves them to a local JSON file.
 
-There's no appointment form on the page. Every "Book an Appointment" button opens
-the chat widget (`components/ChatWidget.tsx`, floating bottom-right on every page),
-which offers two flows:
+## Development & testing
 
-- **Ask a question** — matches free text against `lib/data.ts` → `faqs`.
-- **Book an appointment** — a guided, validated conversation (name → phone → email →
-  treatment → date) that POSTs to `/api/booking` on the last step.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Starts the development server with hot reload |
+| `npm run build` | Creates the production build and type-checks the code |
+| `npm start` | Serves the production build |
+| `npm run lint` | Runs ESLint over the project |
 
-Validation (name format, phone format, email format, no past dates) runs both in the
-chat (`components/ChatWidget.tsx`) and again server-side in the API route — never trust
-client-side validation alone.
+There is no automated test suite yet. Environment variables: only `ADMIN_TOKEN` is used; there is no `.env.example` file.
 
-## Viewing booking requests (admin)
+## Documentation
 
-Set an `ADMIN_TOKEN` environment variable, then visit:
+No `docs/` folder exists. These files carry explanatory comments:
 
-```
-/admin/bookings?token=<your ADMIN_TOKEN value>
-```
+| File | What it explains |
+| --- | --- |
+| [lib/data.ts](lib/data.ts) | All site content; entries marked `[PLACEHOLDER]` must be replaced |
+| [lib/bookingStore.ts](lib/bookingStore.ts) | How bookings are stored and why that is not enough for production on Vercel |
+| [lib/stockPhotos.ts](lib/stockPhotos.ts) | Where each photo came from and its license |
+| [app/api/booking/route.ts](app/api/booking/route.ts) | Server-side validation rules |
+| [legacy/](legacy) | The original single-file HTML prototype, kept for reference only |
 
-**Important limitation:** requests are stored in a JSON file on disk
-(`lib/bookingStore.ts`). That's reliable for local development or a traditional
-always-on Node server, but Vercel's serverless functions run on an ephemeral,
-largely read-only filesystem — writes there can silently disappear between
-invocations. For real production use, swap `lib/bookingStore.ts` for a managed
-store (Vercel Postgres, Vercel KV, Supabase, etc.) or forward each submission to
-email/a CRM instead (see the TODO in `app/api/booking/route.ts`). The current
-setup exists so you have something real and inspectable to look at today, not as
-a production data layer.
+## Limitations and roadmap
 
-`/admin/bookings` has no real authentication — it's a shared-secret query
-parameter for convenience during development. Put it behind proper auth before
-this site is public and holds real patient data.
+- **Bookings may not persist on Vercel.** The JSON file store writes to disk, which is temporary on serverless hosting. Replace it with a database before real use.
+- **Admin has no real login.** It checks a shared token in the URL. Add proper authentication before storing real patient data.
+- **No notifications.** Nobody is emailed when a request arrives (a TODO in the booking route).
+- **Chat is keyword-based.** It matches words from your FAQs; it is not an AI model and will miss unusual phrasing.
+- **Placeholder content.** The clinic name, address, statistics, reviews, team and legal text are samples, not verified claims. Team photos and before/after images are intentionally placeholders.
+- **Deployment.** Vercel is the intended target; no CI workflow or deployment guide is included yet.
 
-## Content marked `[PLACEHOLDER]`
+## License
 
-This is a **template**, not a real clinic's verified content. Anywhere you
-see `[PLACEHOLDER]` in `lib/data.ts` or a page file, replace it with real,
-verified information before launch — clinic name, address, phone, hours,
-stats (rating, years of experience, patient count), team bios and
-qualifications, and testimonials. Do not publish invented medical claims,
-review counts, or before/after results. The legal pages (`app/privacy`,
-`app/terms`, `app/accessibility`) are boilerplate structure, not legal
-advice — have them reviewed by a lawyer before publishing.
-
-## Photography
-
-Hero, the philosophy section, Technology, the Featured Treatment showcase and
-the Treatments hover panel use real photographs — individually verified as
-free-to-use under the standard (non-paid) Unsplash License. Sources and credit
-links are in `lib/stockPhotos.ts` and in the footer.
-
-Two places intentionally stay as abstract placeholders rather than stock
-photos, for reasons worth keeping in mind if you change them:
-
-- **Team headshots** — attaching a real photographed stranger's face to an
-  invented name and bio would misrepresent a real person as clinic staff.
-  Replace these with your actual team's photos (`components/Team.tsx`).
-- **Smile gallery before/after** — using unrelated stock photos as fake
-  "before/after" results would be a misleading medical claim. Only use real,
-  patient-consented before/after photography here (`components/SmileGallery.tsx`,
-  `components/ui/BeforeAfterSlider.tsx`).
-
-To add your own photos anywhere: drop files in `public/images/`, then use
-`next/image` directly, e.g.:
-
-```tsx
-import Image from "next/image";
-<Image src="/images/hero.jpg" alt="..." fill className="object-cover" />
-```
-
-## Wiring up real appointment notifications
-
-`app/api/booking/route.ts` validates and persists submissions (see above) but
-doesn't notify anyone externally yet. To make requests actionable in real
-time, add one of:
-
-- **Email**: send via [Resend](https://resend.com) or Postmark inside the route handler.
-- **CRM / practice management**: POST to a Zapier/Make webhook, or directly to your PMS's API (e.g. Cliniko, Dentrix).
-
-Any of these will need an API key stored as a Vercel environment variable
-(Project Settings → Environment Variables) — never commit secrets to the repo.
-
-## Accessibility & performance notes
-
-- Respects `prefers-reduced-motion` globally (see `app/globals.css`).
-- All interactive elements — nav, chat widget, date picker — are keyboard-reachable.
-- Animations use GPU-friendly transforms (`opacity`/`transform`) — no
-  WebGL, no large video, no continuous mouse tracking beyond the
-  desktop-only magnetic button.
-- Fonts load via `next/font` (self-hosted, no layout shift, no external
-  render-blocking requests).
-- No emoji are used in UI copy or icons — `components/icons.tsx` has a small
-  inline SVG icon set instead.
-
-## Customizing content
-
-Almost everything editorial lives in `lib/data.ts`:
-
-- Business info → `brand`
-- Nav links → `navLinks`
-- Trust stats → `trustStats`
-- Treatments list → `treatments`
-- "Why choose us" cards → `whyChooseUs`
-- Technology features → `technologyFeatures`
-- Patient journey steps → `journeySteps`
-- Testimonials → `testimonials`
-- Team bios → `team`
-- Gallery categories → `galleryCategories`
-- Chat FAQ answers → `faqs`
-
-Color palette and typography live in `tailwind.config.ts` (`ivory`,
-`charcoal`, `clinical`, `gold` tokens) and `app/layout.tsx` (Fraunces serif
-+ Inter sans via `next/font/google`).
+No license file is included yet, so all rights are reserved by default. Add one before sharing or reusing the code. Placeholder photos are from Unsplash under the [Unsplash License](https://unsplash.com/license); credits are in the site footer.
